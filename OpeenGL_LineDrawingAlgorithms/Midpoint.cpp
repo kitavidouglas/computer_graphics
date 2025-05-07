@@ -1,39 +1,120 @@
-// Placeholder for Midpoint.cpp
-// Beginner-friendly explanations and calculations included.
 // Midpoint.cpp
-// This program calculates the midpoint between two points in 2D space
-// Author: [Your Name]
-// Date: [Today’s Date]
+// Advanced Geometry Tool for midpoint, distance, and reflection calculations in 2D/3D
+// Author: Kitavi Douglas Kimani
+// Date: 2025-05-07
 
 #include <iostream>
+#include <iomanip>
+#include <vector>
+#include <cmath>
+#include <stdexcept>
 using namespace std;
 
+// Define a Point class with 3D support
+class Point {
+public:
+    double x, y, z;
+
+    Point(double x=0, double y=0, double z=0) : x(x), y(y), z(z) {}
+
+    // Operator overload for midpoint
+    Point operator+(const Point& other) const {
+        return Point(x + other.x, y + other.y, z + other.z);
+    }
+
+    Point operator/(double val) const {
+        return Point(x / val, y / val, z / val);
+    }
+
+    // Euclidean distance between two points
+    double distanceTo(const Point& other) const {
+        return sqrt(pow(x - other.x, 2) +
+                    pow(y - other.y, 2) +
+                    pow(z - other.z, 2));
+    }
+
+    // Reflect point across the midpoint
+    Point symmetricReflection(const Point& mid) const {
+        return Point(2 * mid.x - x, 2 * mid.y - y, 2 * mid.z - z);
+    }
+
+    void display(bool showZ = false) const {
+        cout << fixed << setprecision(2)
+             << "(" << x << ", " << y;
+        if (showZ) cout << ", " << z;
+        cout << ")";
+    }
+};
+
+// Function to process multiple point pairs
+void processPoints(const vector<pair<Point, Point>>& pointPairs, bool is3D = false) {
+    cout << left << setw(25) << "Point A"
+         << setw(25) << "Point B"
+         << setw(25) << "Midpoint"
+         << setw(15) << "Distance"
+         << setw(25) << "Reflection of A (w.r.t. Mid)" << "\n";
+
+    cout << string(115, '-') << "\n";
+
+    for (const auto& pair : pointPairs) {
+        const Point& A = pair.first;
+        const Point& B = pair.second;
+
+        Point midpoint = (A + B) / 2.0;
+        double dist = A.distanceTo(B);
+        Point reflectedA = A.symmetricReflection(midpoint);
+
+        A.display(is3D); cout << setw(15);
+        cout << "   ";
+        B.display(is3D); cout << setw(15);
+        cout << "   ";
+        midpoint.display(is3D); cout << setw(15);
+        cout << "   ";
+        cout << setw(10) << dist << "   ";
+        reflectedA.display(is3D);
+        cout << "\n";
+    }
+}
+
 int main() {
-    // Declare variables for the coordinates of the two points
-    double x1, y1, x2, y2;
+    try {
+        int numPairs;
+        bool is3D;
+        cout << "Enter number of point pairs: ";
+        cin >> numPairs;
 
-    // Prompt user to enter coordinates for the first point
-    cout << "Enter x-coordinate of the first point (x1): ";
-    cin >> x1;
-    cout << "Enter y-coordinate of the first point (y1): ";
-    cin >> y1;
+        cout << "Enable 3D mode? (1 for yes, 0 for no): ";
+        cin >> is3D;
 
-    // Prompt user to enter coordinates for the second point
-    cout << "Enter x-coordinate of the second point (x2): ";
-    cin >> x2;
-    cout << "Enter y-coordinate of the second point (y2): ";
-    cin >> y2;
+        vector<pair<Point, Point>> pointPairs;
 
-    // Calculate the midpoint using the midpoint formula:
-    // midpoint_x = (x1 + x2) / 2
-    // midpoint_y = (y1 + y2) / 2
-    double midpoint_x = (x1 + x2) / 2.0;
-    double midpoint_y = (y1 + y2) / 2.0;
+        for (int i = 0; i < numPairs; ++i) {
+            double x1, y1, z1 = 0, x2, y2, z2 = 0;
 
-    // Display the result
-    cout << "\nThe midpoint between (" << x1 << ", " << y1 << ") and ("
-         << x2 << ", " << y2 << ") is: (" 
-         << midpoint_x << ", " << midpoint_y << ")\n";
+            cout << "\nPoint Pair #" << i + 1 << "\n";
+            cout << "Enter coordinates for Point A (x y";
+            if (is3D) cout << " z";
+            cout << "): ";
+            cin >> x1 >> y1;
+            if (is3D) cin >> z1;
+
+            cout << "Enter coordinates for Point B (x y";
+            if (is3D) cout << " z";
+            cout << "): ";
+            cin >> x2 >> y2;
+            if (is3D) cin >> z2;
+
+            Point A(x1, y1, z1);
+            Point B(x2, y2, z2);
+            pointPairs.push_back({A, B});
+        }
+
+        cout << "\nCalculating midpoints, distances, and symmetric reflections...\n\n";
+        processPoints(pointPairs, is3D);
+
+    } catch (const exception& e) {
+        cerr << "An error occurred: " << e.what() << endl;
+    }
 
     return 0;
 }
